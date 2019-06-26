@@ -1,0 +1,635 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>蓝源Eloan-P2P平台->我要投资</title>
+
+	<link rel="stylesheet" href="/js/bootstrap-3.3.2-dist/css/bootstrap.css" type="text/css" />
+	<link rel="stylesheet" href="/css/core.css" type="text/css" />
+	<link rel="stylesheet" href="/css/account.css" TYPE="text/css">
+	<script type="text/javascript" src="/js/jquery/jquery-2.1.3.js"></script>
+	<script type="text/javascript" src="/js/bootstrap-3.3.2-dist/js/bootstrap.js"></script>
+	<script type="text/javascript" src="/js/jquery.bootstrap.min.js"></script>
+	<script type="text/javascript" src="/js/plugins/jquery-validation/jquery.validate.js"></script>
+	<script type="text/javascript" src="/js/plugins/jquery-validation/localization/messages_zh.js"></script>
+	<script type="text/javascript" src="/js/plugins/jquery.form.js"></script>
+	<script type="text/javascript" src="/js/jquery.bootstrap.min.js"></script>
+	<script type="text/javascript" src="/js/vue.min.js"></script>
+	<script type="text/javascript" src="/js/axios.min.js"></script>
+
+	<script src="https://cdn.bootcss.com/qs/6.5.1/qs.min.js"></script>
+
+	<style type="text/css">
+		body {
+			font: 14px/1.5 "Verdana", "微软雅黑", YaHei, tahoma, arial, Hiragino Sans GB, "宋体";
+		}
+		.el-borrow-form{
+			position: relative;
+		}
+		.el-borrow-form-tip{
+			width: 300px;
+			border-radius: 3px;
+			border:1px solid #ddd;
+			box-shadow: 1px 1px 20px #ddd;
+			padding:20px 30px;
+			position: absolute;
+			top:10px;
+			right: 100px;
+		}
+		.text-danger{text-align: center;}
+	</style>
+</head>
+<body>
+
+<div id="app" >
+
+	<div class="el-header">
+		<div class="container" style="position: relative;">
+			<ul class="nav navbar-nav navbar-right">
+				<li><a href="/index.do">首页</a></li>
+
+				<li><a class="el-current-user" href="/personal.html">
+					{{loginInfo.username}}
+				</a>
+				</li>
+				<li><a href="/recharge.do"> 账户充值 </a></li>
+				<li><a id="logout" href="javascript:void(0);"> 注销 </a></li>
+				<li><a href="#">帮助</a></li>
+			</ul>
+		</div>
+	</div>
+
+
+	<div class="navbar navbar-default el-navbar">
+		<div class="container">
+			<div class="navbar-header">
+				<a href="/">
+					<img alt="Brand" src="/images/logo.png">
+				</a>
+			</div>
+			<ul class="nav navbar-nav">
+				<li id="index"><a href="/index.do">首页</a></li>
+				<li id="invest"><a href="/invest.html">我要投资</a></li>
+				<li id="borrow"><a href="/borrow.html">我要借款</a></li>
+				<li id="account"><a href="/personal.html">个人中心</a></li>
+				<li><a href="#">新手指引</a></li>
+				<li><a href="#">关于我们</a></li>
+			</ul>
+		</div>
+	</div>
+
+
+	<!-- 网页内容 -->
+	<div class="container" style="margin-top: 10px;">
+
+		<div class="row">
+
+			<div class="col-sm-3">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						借款人
+					</div>
+					<div class="panel-body">
+						<img class="el-userhead" src="/images/person_icon.png" />
+						<!--v-if="bidRequest.createUser"   {{bidRequest.createUser.username}}    vue里面取数据不能超过两级;如果超过两级我们可以判断一下,否则能正常显示但是控制台会报错-->
+						<p class="text-center">
+							<a class="text-info" href="#">{{createUser.username}}</a>
+						</p><br />
+
+						<div>
+							籍贯： 河南 - 安阳
+						</div>
+						<div>
+							认证信息：
+							<label class="label label-success">
+								<span v-if="borrowUserInfo.realAuth" class="glyphicon glyphicon-user"></span>
+								<span v-if="borrowUserInfo.vedioAuth" class="glyphicon glyphicon-eye-open"></span>
+							</label>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-sm-6">
+				<h3 class="text-info" style="margin-top: 0px;">
+					{{bidRequest.title}}
+					<small>&emsp;<label class="label label-primary">信</label></small>
+				</h3>
+				<div>
+					<table width="100%" height="250px">
+						<tr>
+							<td class="muted" width="80px">借款金额</td>
+							<td class="text-info" width="120px" style="padding-left: 10px;">
+								{{bidRequest.bidRequestAmount}}
+							</td>
+							<td class="muted" width="80px">年化利率</td>
+							<td class="text-info" style="padding-left: 10px;">
+								{{bidRequest.currentRate}}%
+							</td>
+						</tr>
+						<tr>
+							<td class="muted ">借款期限</td>
+							<td class="text-info" style="padding-left: 10px;">
+								{{bidRequest.monthes2Return}}月
+							</td>
+							<td class="muted">总可得利息</td>
+							<td class="text-info" style="padding-left: 10px;">
+								{{bidRequest.totalRewardAmount}}
+							</td>
+						</tr>
+						<tr>
+							<td class="muted">还款方式</td>
+							<td class="text-info" style="padding-left: 10px;">
+								{{bidRequest.returnTypeDisplay}}
+							</td>
+							<td class="muted">最小投标</td>
+							<td class="text-info" style="padding-left: 10px;">
+								{{bidRequest.minBidAmount}}
+							</td>
+						</tr>
+						<tr>
+							<td class="muted">风控意见</td>
+							<td class="text-info" style="padding-left: 10px;" colspan="3">
+								<!--${bidRequest.note}-->
+							</td>
+						</tr>
+						<tr>
+							<td class="muted">剩余时间</td>
+							<td class="text-info" style="padding-left: 10px;" colspan="3">
+								<!--<div id="retroclockbox"></div>-->
+								{{remainTime}}   <!--23:57:45   new Date()    bidRequest.disableDate -->
+							</td>
+						</tr>
+					</table>
+				</div>
+			</div>
+			<div class="col-sm-3">
+				<table style="height:110px;width:230px;">
+					<tr>
+						<td  class="muted">投标总数</td><td class="text-info" style="padding-left: 10px;">
+						{{bidRequest.bidCount}}
+					</td>
+					</tr>
+					<tr>
+						<td  class="muted">还需金额</td><td class="text-info" style="padding-left: 10px;">
+						{{bidRequest.remainAmount}} 元
+					</td>
+					</tr>
+				</table>
+				<br />
+
+
+				<!--展示给当前借款标的创建人-->
+				<div v-if="bidRequest.bidRequestState==1 && borrowUserInfo.id == loginInfo.id">
+					<a  class="btn btn-danger btn-block" style="font-size: 18px;" href="#">
+						招标中
+					</a>
+					<table style="height:100px;width:180px;">
+
+						<tr>
+						<td class="muted">已投</td>
+						<td>
+							{{bidRequest.currentSum}}元
+						</td>
+					</tr>
+						<tr>
+							<td class="muted">还需要</td>
+							<td>
+							<span class="text-info">
+								{{bidRequest.remainAmount}}元
+							</span>
+							</td>
+						</tr>
+					</table>
+
+				</div>
+
+				<!--展示给投资人（非当前借款标的创建人）-->
+				<div v-if="bidRequest.bidRequestState==1 && borrowUserInfo.id != loginInfo.id">
+					<a  class="btn btn-danger btn-block" style="font-size: 18px;" href="#">
+						招标中
+					</a>
+
+					<table style="height:100px;width:180px;">
+						<tr>
+							<td class="muted">可用余额</td>
+							<td>
+							<span class="text-info">
+								{{account.usableAmount}}元
+							</span>
+							</td>
+						</tr>
+						<tr>
+							<td class="muted">已投</td>
+							<td>
+								{{bidRequest.currentSum}}元
+							</td>
+						</tr>
+						<tr>
+							<td class="muted">还需要</td>
+							<td>
+							<span class="text-info">
+								{{bidRequest.remainAmount}}元
+							</span>
+							</td>
+						</tr>
+						<tr>
+							<td colspan="2">
+								<div class="form-group">
+									<input class="form-control input-sm" v-model="amount" autocomplete="off" placeholder="投资金额" />
+								</div>
+							</td>
+						</tr>
+					</table>
+					<button v-bind:disable="remainSeconds<=0" @click="submitBid()" id="bidBtn" class="btn btn-danger  btn-block">
+						马上投标
+					</button>
+
+				</div>
+					<h4 v-if="bidRequest.bidRequestState==4 || bidRequest.bidRequestState==5 " class="text-primary">满标审核中</h4>
+					<h4 v-if="bidRequest.bidRequestState==7" class="text-primary" >还款中</h4>
+					<h4 v-if="bidRequest.bidRequestState==8" class="text-primary">已还清</h4>
+			</div>
+		</div>
+
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				借款人信息
+			</div>
+			<div class="panel-body">
+				<table>
+					<tbody>
+					<tr>
+						<td class="muted text-right" width="140px;">出生时间</td>
+						<td width="150px;" style="padding-left: 10px;" class="text-info">
+							{{borrowRealAuth.birthDate}}
+						</td>
+						<td class="muted text-right" width="140px;">借款额度</td>
+						<td width="150px;" style="padding-left: 10px;" class="text-info">
+							<!--这里需要查询借款人的授信额度-->
+							{{bidRequest.bidRequestAmount}}
+						</td>
+						<td class="muted text-right" width="140px;">性别</td>
+						<td width="150px;" style="padding-left: 10px;" class="text-info">
+							{{borrowRealAuth.sex==0?"男":"女"}}
+						</td>
+						<td class="muted text-right" width="140px;">住房条件</td>
+						<td width="150px;" style="padding-left: 10px;" class="text-info" v-if="borrowUserInfo.houseCondition">
+							{{borrowUserInfo.houseCondition.title}}
+						</td>
+					</tr>
+					<tr>
+						<td class="muted text-right">文化程度</td>
+						<td style="padding-left: 10px;" class="text-info" v-if="borrowUserInfo.educationBackground">
+							{{borrowUserInfo.educationBackground.title}}
+						</td>
+						<td class="muted text-right">每月收入</td>
+						<td style="padding-left: 10px;" class="text-info" v-if="borrowUserInfo.incomeGrade">
+							{{borrowUserInfo.incomeGrade.title}}
+						</td>
+						<td class="muted text-right">婚姻情况</td>
+						<td style="padding-left: 10px;" class="text-info" v-if="borrowUserInfo.marriage">
+							{{borrowUserInfo.marriage.title}}
+						</td>
+						<td class="muted text-right">子女情况</td>
+						<td style="padding-left: 10px;" class="text-info" v-if="borrowUserInfo.kidCount">
+							{{borrowUserInfo.kidCount.title}}
+						</td>
+					</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<div style="font-size: 16px;">材料信息</div>
+			</div>
+			<div class="panel-body">
+				<table class="table table-striped">
+					<thead>
+					<tr>
+						<th>材料类型</th>
+						<th>材料数量</th>
+					</tr>
+					</thead>
+					<tbody>
+
+						<tr v-for="(value,key) in fileTypeMap" style="cursor: pointer;" lid="2101" st="1" class="more">
+							<th>{{key}}</th>
+							<td>{{value}}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<div style="font-size: 16px;">还款情况</div>
+			</div>
+			<div class="panel-body">
+				<table class="table table-striped">
+					<thead>
+					<tr>
+						<th>还款状态</th>
+						<th>最近一周</th>
+						<th>最近1月</th>
+						<th>最近6月</th>
+						<th>6个月前</th>
+						<th>总计[?]</th>
+					</tr>
+					</thead>
+					<tbody>
+					<tr>
+						<td>提前还款</td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+					</tr>
+					<tr>
+						<td>准时还款</td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+					</tr>
+					<tr>
+						<td>逾期已还</td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+					</tr>
+					<tr>
+						<td>逾期未还</td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+						<td>0</td>
+					</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<div style="font-size: 16px;">投标记录</div>
+			</div>
+			<div class="panel-body">
+				<table class="table table-striped">
+					<thead>
+					<tr>
+						<th>投标人</th>
+						<th>年利率 </th>
+						<th>有效金额(¥)</th>
+						<th>投标时间</th>
+						<th>类型</th>
+					</tr>
+					</thead>
+					<tbody v-if="bidRequest.bids.length==0">
+							<tr>
+								<td colspan="6">
+									<p class="text-primary text-center">暂时没有投标数据</p>
+								</td>
+							</tr>
+					</tbody>
+
+					<tbody v-if="bidRequest.bids.length!=0">
+
+						<tr v-for="bid in bidRequest.bids">
+							<td>{{bid.bidUser.username}}</td>
+							<td>
+								{{bid.actualRate}}%
+							</td>
+							<td style="padding-right:60px;" class="text-info">
+								{{bid.availableAmount}}
+							</td>
+							<td>
+								{{bid.bidTime}}
+							</td>
+							<td>手动投标</td>
+						</tr>
+
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+
+</div>
+</body>
+</html>
+<script>
+    axios.defaults.withCredentials = true;
+    axios.defaults.baseURL = "http://localhost:20000";
+
+    //加载数据
+    var vue = new Vue({
+        el:"#app",
+        data:{
+            loginInfo:{},		//当前用户的账号信息
+            userInfo :{},		//当前用户的个人资料
+            bidRequest:{},		//借款标信息，包含了 投标列表，借款人的账号信息
+            borrowUserInfo:{},		//借款人的个人资料
+            borrowRealAuth:{},		//借款人的实名认证资料
+            account:{},		//投资人的账户信息
+            //fileTypeCountMap:{},	//各个风控材料类型分别上传的数量:  材料类型--->数量
+            userFileList:[],
+            remainSeconds:0,  //剩余秒数倒计时
+			createUser:{},  //{{bidRequest.createUser.username}}    vue里面取数据不能超过两级;如果超过两级我们可以判断一下,否则能正常显示但是控制台会报错-->
+            amount:0,  //投标金额
+
+        },
+        methods:{
+            //            投标
+            submitBid : function () {
+
+                //1.前端的校验
+                var usableAmount = vue.account.usableAmount;//可用金额
+                var remainAmount = vue.bidRequest.remainAmount;//剩余投标金额
+                var minBidAmount = vue.bidRequest.minBidAmount;//
+                if(vue.amount>usableAmount){
+                    alert("投标金额不能大于可用金额");
+                    return;
+                }
+                if(vue.amount>remainAmount){
+                    alert("投标金额不能大于剩余投标金额");
+                    return;
+                }
+//				当还需金额小于最小投标金额
+                if(remainAmount<minBidAmount){
+                    if(vue.amount != remainAmount){
+                        alert("最小投标金额大于剩余投标金额，" +
+                            "投标金额必须为剩余投标金额");
+                        return;
+                    }
+                }else{
+                    if(vue.amount < minBidAmount){
+                        alert("投标金额不能小于最小投标金额");
+                        return;
+                    }
+                }
+                //执行投标
+                axios({
+                    url:"/bidservice/bid/do_bid",
+					params:{
+                      	bidUserId:vue.loginInfo.id,
+						bidRequestId:vue.bidRequest.id,
+						amount:vue.amount
+					},
+                    method:"POST"
+                }).then(function (result) {
+                    if (result.data.code == 0){
+                        alert("投标成功！");
+                        location.reload();
+					}else {
+                        alert("投标失败！原因："+result.data.msg);
+					}
+                });
+            },
+
+            initData : function(){
+                var params = Qs.parse(location.search.replace('?',''));
+                var bidRequestId = params.id;//获取当前借款标的id
+
+                axios({
+                    url:"/userservice/user/getLogInfo",
+                    method:"POST"
+                }).then(function (resp) {
+                    var resultVo = resp.data;	//resultVO{code,msg,data}
+                    console.log(resultVo);
+
+                    if(resultVo.code == 0){
+                        vue.loginInfo = resultVo.data;
+                        console.log(vue.loginInfo);
+
+                        //当前登录用户的个人资料
+                        axios({
+                            url:"/userservice/user/getUserInfo/"+vue.loginInfo.id,
+                            method:"GET"
+                        }).then(function (result) {
+                            vue.userInfo = result.data.data;
+                            console.log(vue.userInfo);
+                        });
+
+
+
+                        //查询当前的借款标信息
+                        axios({
+                            url:"/bidservice/bid_request/detail/"+bidRequestId,
+                            method:"GET"
+                        }).then(function (result) {
+                            vue.bidRequest = result.data.data;
+                            console.log(vue.bidRequest);
+                            vue.createUser=vue.bidRequest.createUser;
+                            console.log("createUser:");
+                            console.log(vue.createUser);
+                            //计算剩余秒数
+							vue.remainSeconds =  parseInt((new Date(vue.bidRequest.disableDate).getTime() - new Date().getTime())/1000);
+
+
+                            //当前登录用户的个人资料 borrowUserInfo
+                            axios({
+                                url:"/userservice/user/getUserInfo/"+vue.bidRequest.createUser.id,
+                                method:"GET"
+                            }).then(function (result) {
+                                vue.borrowUserInfo = result.data.data;
+                                console.log(vue.borrowUserInfo);
+                            });
+
+                            //借款人的实名认证资料 borrowRealAuth    /userservice/realAuth/applierId
+                            axios({
+                                url:"/userservice/realAuth/"+vue.bidRequest.createUser.id,
+                                method:"GET"
+                            }).then(function (result) {
+                                vue.borrowRealAuth = result.data.data;
+                                console.log(vue.borrowRealAuth);
+                            });
+
+
+							//借款人的风控材料
+                            axios({
+                                url:"/userservice/userFile/fileList",
+								params:{userId:vue.bidRequest.createUser.id},
+                                method:"GET"
+                            }).then(function (result) {
+//                                alert("加载的风控材料列表");
+                                console.log(result.data.data);
+                                vue.userFileList = result.data.data;
+                            });
+                        });
+
+						//查询当前用户的账户信息
+                        axios({
+                            url:"/accountservice/account/selectById/"+vue.loginInfo.id,
+                            method:"GET"
+                        }).then(function (result) {
+                            vue.account = result.data.data;
+                            console.log(vue.account);
+                        });
+
+
+                    }else{
+                        alert(resultVo.msg);
+                        location.href= "/login.html";
+                    }
+
+                });
+            }
+
+        },
+        created:function () {
+            this.initData();
+
+            var countDownTimer = window.setInterval(function () {
+				vue.remainSeconds--;
+				if(vue.remainSeconds <= 0){
+				    clearInterval(countDownTimer);
+				    //禁用马上投标按钮
+				}
+            },1000);
+
+
+        },
+		computed:{
+            fileTypeMap:function () {
+				var map = {};
+				for(var i=0; i<vue.userFileList.length; i++){
+				    var userFile = vue.userFileList[i];
+				    if(map[userFile.fileType.title] == null){
+                        map[userFile.fileType.title] = 1;
+					}else{
+                        map[userFile.fileType.title]++;
+					}
+
+				}
+
+				return map;
+            },
+			remainTime:function () {
+
+                if(vue.remainSeconds <= 0){
+                    return "招标已结束";
+                }
+
+                var hour =  parseInt(vue.remainSeconds/3600);//小时数
+                var minute = parseInt(vue.remainSeconds/60)%60;
+                var second = vue.remainSeconds%60;
+
+                var hourStr = hour<=9?'0'+hour:hour;
+                var minuteStr = minute<=9?'0'+minute:minute;
+                var secondStr = second<=9?'0'+second:second;
+
+                return hourStr+":"+minuteStr+":"+secondStr;
+            }
+		}
+
+    });
+
+</script>

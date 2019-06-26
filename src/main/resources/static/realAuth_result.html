@@ -1,0 +1,268 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>蓝源Eloan-P2P平台</title>
+    <link rel="stylesheet" href="/js/bootstrap-3.3.2-dist/css/bootstrap.css" type="text/css" />
+    <link rel="stylesheet" href="/css/core.css" type="text/css" />
+    <script type="text/javascript" src="/js/jquery/jquery-2.1.3.js"></script>
+    <script type="text/javascript" src="/js/bootstrap-3.3.2-dist/js/bootstrap.js"></script>
+    <script type="text/javascript" src="/js/plugins/jquery-validation/jquery.validate.js"></script>
+    <script type="text/javascript" src="/js/plugins/jquery-validation/localization/messages_zh.js"></script>
+    <script type="text/javascript" src="/js/plugins/jquery.form.js"></script>
+    <script type="text/javascript" src="/js/jquery.bootstrap.min.js"></script>
+    <script type="text/javascript" src="/js/vue.js"></script>
+    <script type="text/javascript" src="https://cdn.bootcss.com/axios/0.19.0-beta.1/axios.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="/css/account.css" />
+    <script type="text/javascript" src="https://cdn.bootcss.com/vuetify/2.0.0-alpha.20/vuetify.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://cdn.bootcss.com/vuetify/2.0.0-alpha.20/vuetify.min.css" />
+    <style type="text/css">
+        #realAuthForm input ,#realAuthForm select{
+            width: 260px;
+        }
+        .idCardItem{
+            width: 160px;
+            height: 150px;
+            float:left;
+            margin-right:10px;
+            border: 1px solid #e3e3e3;
+            text-align: center;
+            padding: 5px;
+        }
+        .uploadImg{
+            width: 120px;
+            height: 100px;
+            margin-top: 5px;
+        }
+        .swfupload{
+            left: 0px;
+            cursor: pointer;
+        }
+        .uploadify{
+            height: 20px;
+            font-size:13px;
+            line-height:20px;
+            text-align:center;
+            position: relative;
+            margin-left:auto;
+            margin-right:auto;
+            cursor:pointer;
+            background-color: #337ab7;
+            border-color: #2e6da4;
+            color: #fff;
+        }
+        #viewExample{
+            position: relative;
+            left: 50px;
+            top: 60px;
+        }
+        .uploadExample{
+            width: 200px;
+            height: 130px;
+            margin-bottom: 20px;
+        }
+    </style>
+    <script type="text/javascript" src="/js/plugins/uploadify/jquery.uploadify.min.js"></script>
+    <script type="text/javascript">
+        $(function(){
+            $("#viewExample").popover({
+                html:true,
+                content:'正面<img src="/images/upload_source_2.jpg" class="uploadExample"/><br/>反面<img src="/images/upload_source_2_1.jpg" class="uploadExample"/>',
+                trigger:"hover",
+                placement:"top"
+            });
+            //处理上传
+            $("#uploadBtn1").uploadify({
+                height:30,//按钮大小
+                width:120,//按钮宽度
+                buttonText:"上传正面",//按钮文字
+                fileObjName:"file",//上传文件的名字(对应的MultipartFile的名字)
+                multi:false,//是否允许多选
+                fileTypeExts:'*.gif; *.jpg; *.png',//控制上传文件的后缀
+                swf:"/js/plugins/uploadify/uploadify.swf",//falsh文件的地址
+                uploader:"http://localhost:20000/imageservice/image/upload",//后台处理上传文件的地址;
+                overrideEvents:['onUploadSuccess','onUploadProgress','onSelect'],
+                onUploadSuccess:function(file,data){//data  表示resultVo
+                    //console.log(data);//打印图片是否合法
+                    //var resultVo = JSON.parse(data);//将json字符串转换为js对象
+                    /*
+                    * JSON.stringify  从一个对象转换json字符串
+                    * JSON.parse将json字符串转换为js对象
+                    * */
+                    $("#uploadImg1").attr("src",data);//图片的路径
+                    $("#uploadImage1").val(data);//图片的数据信息
+                }
+            });
+            //处理上传   背面
+            $("#uploadBtn2").uploadify({
+                height:30,//按钮大小
+                width:120,//按钮宽度
+                buttonText:"上传背面",//按钮文字
+                fileObjName:"file",//上传文件的名字(对应的MultipartFile的名字)
+                multi:false,//是否允许多选
+                fileTypeExts:'*.gif; *.jpg; *.png',//控制上传文件的后缀
+                swf:"/js/plugins/uploadify/uploadify.swf",//falsh文件的地址
+                uploader:"http://localhost:20000/imageservice/image/upload",//后台处理上传文件的地址;
+                overrideEvents:['onUploadSuccess','onUploadProgress','onSelect'],
+                onUploadSuccess:function(file,data){
+                   // console.log(data);//打印图片是否合法
+                    //var resultVo = JSON.parse(data);//将json字符串转换为js对象
+                    $("#uploadImg2").attr("src",data);
+                    $("#uploadImage2").val(data);
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+<div id="app">
+<!-- 网页顶部导航 -->
+<div class="el-header">
+    <div class="container" style="position: relative;">
+        <ul class="nav navbar-nav navbar-right">
+            <li><a href="/index.html">首页</a></li>
+            <li><a href="/login.html">登录</a></li>
+            <li><a href="/register.html">快速注册</a></li>
+            <li><a class="el-current-user" href="/personal.html">
+                {{loginInfo.username}} </a></li>
+            <li><a href="/recharge.html"> 账户充值 </a></li>
+            <li><a id="logout" href="javascript:void(0);"> 注销 </a></li>
+            <li><a href="#">帮助</a></li>
+        </ul>
+    </div>
+</div>
+<!-- 网页导航 -->
+<div class="navbar navbar-default el-navbar">
+    <div class="container">
+        <div class="navbar-header">
+            <a href="/">
+                <img alt="Brand" src="/images/logo.png">
+            </a>
+        </div>
+        <ul class="nav navbar-nav">
+            <li id="index"><a href="/index.html">首页</a></li>
+            <li id="invest"><a href="/invest_list.html">我要投资</a></li>
+            <li id="borrow"><a href="/borrow.html">我要借款</a></li>
+            <li id="account"><a href="/personal.html">个人中心</a></li>
+            <li><a href="#">新手指引</a></li>
+            <li><a href="#">关于我们</a></li>
+        </ul>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <!--导航菜单-->
+        <div class="col-sm-3">
+            <ul id="menu" class="list-group">
+                <li class="list-group-item">
+                    <a href="javascript:;"><span>借贷项目</span></a>
+                    <ul>
+                        <li name="bid"><a href="/bid_list.html"><span>投标项目</span></a></li>
+                        <li name="receive"><a href="/callbackmoney_list.html"><span>收款明细</span></a></li>
+                        <li name="bidRequest"><a href="/borrow_list.html"><span>借款项目</span></a></li>
+                        <li name="borrowBidReturn"><a href="/borrowBidReturn_list.html"><span>还款明细</span></a></li>
+                    </ul>
+                </li>
+                <li class="list-group-item">
+                    <a href="#"><span class="text-title">我的账户</span></a>
+                    <ul class="in">
+                        <li name="account"><a href="/personal.html">账户信息</a></li>
+                        <li name="realAuth"><a href="/realAuth.html">实名认证</a></li>
+                        <li name="userFile"><a href="/userFile.html">风控资料认证</a></li>
+                        <li name="bankInfo"><a href="#">银行卡管理</a></li>
+                        <li name="iplog"><a href="/iplog.html">登录记录</a></li>
+                        <li name="userInfo" class="active"><a href="/basicInfo.html"> <span>个人资料</span></a></li>
+                    </ul>
+                </li>
+                <li class="list-group-item">
+                    <a href="#"><span>资产详情</span></a>
+                    <ul class="in">
+                        <li name="accountFlow_list"><a href="">账户流水</a></li>
+                        <li name="recharge"><a href="#">充值明细</a></li>
+                        <li name="moneyWithdraw"><a href="#">提现申请</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <!-- 功能页面 -->
+        <div class="col-sm-9">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    实名认证
+                </div>
+                <div v-if="realAuth.state == 'STATE_APPLY'" class="panel-body">
+                    实名认证资料已经提交，等待业务员审核，请耐心等待，如果急需审核请联系客服！
+                </div>
+                <div v-if="realAuth.state == 'STATE_PASS'" class="panel-body">
+                    <h4 class="text-success ">你已经通过实名认证</h4>
+                    <hr />
+                    <table style="width: 100%;height: 100px;">
+                        <tr>
+                            <td><span>真实姓名： {{realAuth.realname}}</span></td>
+                            <td><span>性别：{{realAuth.sex == "MALE"?"男":"女"}}</span></td>
+                        </tr>
+                        <tr>
+                            <td><span>证件号码： {{realAuth.idNumber}}</span></td>
+                            <td><span>出生日期：{{realAuth.birthDate}}</span></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div v-if="realAuth.state == 'STATE_REJECT'" class="panel-body">
+                    <h4 class="text-success">你未通过实名认证</h4>
+                    实名认证资料被驳回，请点击<a href="/realAuth.html">这里</a> 重新认证！
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<script src="https://cdn.bootcss.com/qs/6.5.1/qs.min.js"></script>
+<script>
+    axios.defaults.withCredentials = true;//页面地址存入cookie中
+    axios.defaults.baseURL = "http://localhost:20000";
+    //加载数据
+    var vue = new Vue({
+        el:"#app",
+        data:{
+            realAuth:{},//实名认证的对象
+            loginInfo:{},//登录用户对象
+            userInfo:{}//用户列表对象
+        },
+        methods:{
+            initData:function(){
+                axios({//ajax提交
+                    url:"/userservice/user/getLoginInfo",//提交的url路径
+                    method:"GET"//请求方式
+                }).then(function (resp) {
+                    var resultVo = resp.data;//resultVO{code,msg,data}
+                    if(resultVo.code == 0){//判断状态码
+                        vue.loginInfo = resultVo.data;
+                        console.log(vue.loginInfo);
+                        axios({
+                            url: "/userservice/realAuth/" + vue.loginInfo.id,//url拼接登录用户数据
+                            method: "GET"//请求方式
+                        }).then(function (result) {
+                            var resultVo = result.data;
+                            //查询认证信息
+                            if (resultVo.code == 0){
+                                vue.realAuth = resultVo.data;
+                            }else {
+                                alert("尚未填写实名认证资料");
+                                location.href="/realAuth.html";
+                            }
+                        });
+                    }else{
+                        alert(resultVo.msg);
+                        location.href= "/login.html";
+                    }
+                });
+            }
+        },
+        mounted:function () {
+            this.initData();
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://static.runoob.com/assets/vue/1.0.11/vue.min.js"></script>
+</head>
+<body>
+    <div id="app">
+        请输入待办事项:<input type="text" v-model="todoContent" @keyup.enter="addItem()">
+        <hr>
+        <div>
+            <h1>待办事项列表 共{{todoList.length}}件</h1>
+            <table>
+                <tr>
+                    <td></td>
+                    <td>序号</td>
+                    <td>内容</td>
+                </tr>
+                <tr v-for="item in todoList">
+                    <td><input type="checkbox" @click="completeItem(item.index)"></td>
+                    <td>{{item.index+1}}</td>
+                    <td>{{item.content}}</td>
+                </tr>
+            </table>
+        </div>
+        <hr>
+        <div>
+            <h1>已办事项列表 共{{doneList.length}}件</h1>
+            <table>
+                <tr>
+                    <td></td>
+                    <td>序号</td>
+                    <td>内容</td>
+                </tr>
+                <tr v-for="item in doneList">
+                    <td><input type="checkbox"></td>
+                    <td>{{item.index+1}}</td>
+                    <td style="text-decoration: line-through;color: #00a7ff">{{item.content}}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <!-- JavaScript   代码需要放在尾部，指定的HTML元素之后 -->
+<script>
+    new Vue({
+       el:'#app',
+        data:{
+           todoContent:"",
+           todoList:[],//待办事项
+            doneList:[]//已办事项
+        },
+        methods:{
+           addItem:function () {
+               this.todoList.push({index:this.todoList.length,content:this.todoContent});
+               //清空
+               this.todoContent="";
+           },
+           completeItem:function (i) {
+               var item = this.todoList.splice(i,1)[0];
+               this.doneList.push(item);
+           }
+        }
+    });
+</script>
+</body>
+</html>

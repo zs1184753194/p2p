@@ -1,0 +1,368 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>蓝源Eloan-P2P平台</title>
+    <link rel="stylesheet" href="/js/bootstrap-3.3.2-dist/css/bootstrap.css" type="text/css" />
+    <link rel="stylesheet" href="/css/core.css" type="text/css" />
+    <script type="text/javascript" src="/js/jquery/jquery-2.1.3.js"></script>
+    <script type="text/javascript" src="/js/bootstrap-3.3.2-dist/js/bootstrap.js"></script>
+    <script type="text/javascript" src="/js/jquery.bootstrap.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/js/plugins/flipcountdown/jquery.flipcountdown.css" />
+    <script type="text/javascript" src="/js/plugins/flipcountdown/jquery.flipcountdown.js"></script>
+    <script type="text/javascript" src="/js/plugins/jquery.form.js"></script>
+    <link type="text/css" rel="stylesheet" href="/css/account.css" />
+    <script type="text/javascript" src="/js/vue.js"></script>
+    <script type="text/javascript" src="https://cdn.bootcss.com/axios/0.19.0-beta.1/axios.min.js"></script>
+    <script type="text/javascript" src="https://cdn.bootcss.com/vuetify/2.0.0-alpha.20/vuetify.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://cdn.bootcss.com/vuetify/2.0.0-alpha.20/vuetify.min.css" />
+    <script type="text/javascript" src="/js/plugins/uploadify/jquery.uploadify.min.js"></script>
+    <style type="text/css">
+        #realAuthForm input ,#realAuthForm select{
+            width: 260px;
+        }
+        .idCardItem{
+            width: 160px;
+            height: 150px;
+            float:left;
+            margin-right:10px;
+            border: 1px solid #e3e3e3;
+            text-align: center;
+            padding: 5px;
+        }
+        .uploadImg{
+            width: 120px;
+            height: 100px;
+            margin-top: 5px;
+        }
+        .swfupload{
+            left: 0px;
+            cursor: pointer;
+        }
+        .uploadify{
+            height: 20px;
+            font-size:13px;
+            line-height:20px;
+            text-align:center;
+            position: relative;
+            margin-left:auto;
+            margin-right:auto;
+            cursor:pointer;
+            background-color: #337ab7;
+            border-color: #2e6da4;
+            color: #fff;
+        }
+        #viewExample{
+            position: relative;
+            left: 50px;
+            top: 60px;
+        }
+        .uploadExample{
+            width: 200px;
+            height: 130px;
+            margin-bottom: 20px;
+        }
+    </style>
+
+    <script type="text/javascript">
+        $(function() {
+            var count=0;
+            var fileUrlArr = [];
+            //处理上传
+            $("#btn_uploadUserFiles").uploadify({
+                height:30,//按钮大小
+                width:120,//按钮宽度
+                buttonText:"上传风控材料",//按钮文字
+                fileObjName:"file",//上传文件的名字(对应的MultipartFile的名字)
+                multi:true,//是否允许多选
+                fileTypeExts:'*.gif; *.jpg; *.png; *.xls',//控制上传文件的后缀
+                swf:"/js/plugins/uploadify/uploadify.swf",//falsh文件的地址
+                uploader:"http://localhost:20000/imageservice/image/upload",//后台处理上传文件的地址;
+                overrideEvents:['onUploadSuccess','onUploadProgress','onSelect'],
+                onSelect:function (file) {
+                    //alert('The file ' + file.name + ' was added to the queue.');
+                    count++;//上传数量递增
+                },
+                onUploadSuccess:function(file,data){//data 表示resultVO
+                    console.log(data);//{"code":400001,"msg":"图片文件不合法","data":null}
+//                    var resultVo = JSON.parse(data);//将json字符串转换为js对象
+//                    if(resultVo.code != 0){
+//                        alert(resultVo.msg);
+//                    }else{
+                        //fileUrlArr.push(resultVo.data);//用于批量新增
+                        //insert into userfile (file,applier_id) values(xx,xxx),(xxx,xxx)
+                        //图片的地址    resultVo.data
+                        $.ajax({//ajax提交
+                            url:"http://localhost:20000/userservice/userFile/save",//请求的url路径
+                            method:"POST",//get请求方式
+                            data:{fileUrl:data, applierId: $("#loginInfoId").val() },//String fileUrl,Long applierId
+                            dataType:"json",//数据json类型
+                            success:function (result) {//请求成功的回调函数
+                                if(result.code != 0){//判断状态码
+                                    alert(result.msg);
+                                }else{
+                                    count--;//传递成功递减
+                                    if(count==0){//长传完成刷新页面
+                                        location.reload();
+                                    }
+                                }
+                            }
+                        });
+//                    }
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+<div id="app">
+    <div class="el-header">
+        <div class="container" style="position: relative;">
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="/index.html">首页</a></li>
+                <li><a class="el-current-user" href="/personal.html">
+                    {{loginInfo.username}}<!--可以用v-text解决页面加载闪烁问题-->
+                    <input type="hidden" id="loginInfoId" v-bind:value="loginInfo.id">
+                </a>
+                </li>
+                <li><a href="/recharge.html"> 账户充值 </a></li>
+                <li><a id="logout" href="javascript:void(0);"> 注销 </a></li>
+                <li><a href="#">帮助</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="navbar navbar-default el-navbar">
+        <div class="container">
+            <div class="navbar-header">
+                <a href="/">
+                    <img alt="Brand" src="/images/logo.png">
+                </a>
+            </div>
+            <ul class="nav navbar-nav">
+                <li id="index"><a href="/index.html">首页</a></li>
+                <li id="invest"><a href="/invest_list.html">我要投资</a></li>
+                <li id="borrow"><a href="/borrow.html">我要借款</a></li>
+                <li id="account"><a href="/personal.html">个人中心</a></li>
+                <li><a href="#">新手指引</a></li>
+                <li><a href="#">关于我们</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row">
+            <!--导航菜单-->
+            <div class="col-sm-3">
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <a href="javascript:;"><span>借贷项目</span></a>
+                        <ul>
+                            <li name="bid"><a href="/bid_list.html"><span>投标项目</span></a></li>
+                            <li name="receive"><a href="/callbackmoney_list.html"><span>收款明细</span></a></li>
+                            <li name="bidRequest"><a href="/borrow_list.html"><span>借款项目</span></a></li>
+                            <li name="borrowBidReturn"><a href="/borrowBidReturn_list.html"><span>还款明细</span></a></li>
+                        </ul>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="#"><span class="text-title">我的账户</span></a>
+                        <ul class="in">
+                            <li name="account" class="active"><a href="/personal.html">账户信息</a></li>
+                            <li name="realAuth"><a href="/realAuth.html">实名认证</a></li>
+                            <li name="userFile" class="active"><a href="/userFile.html">风控资料认证</a></li>
+                            <li name="bankInfo"><a href="#">银行卡管理</a></li>
+                            <li name="iplog"><a href="/iplog.html">登录记录</a></li>
+                            <li name="userInfo" class="active"><a href="/basicInfo.html"> <span>个人资料</span></a></li>
+                        </ul>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="#"><span>资产详情</span></a>
+                        <ul class="in">
+                            <li name="accountFlow_list"><a href="">账户流水</a></li>
+                            <li name="recharge"><a href="#">充值明细</a></li>
+                            <li name="moneyWithdraw"><a href="#">提现申请</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <!-- 功能页面1     供用户上传材料，同时展示已经上传并归类好的材料信息 （filetype is not null） -->
+            <div v-if="showSetTypeFlag==false" class="col-sm-9">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        用户认证文件信息
+                    </div>
+                </div>
+                <div class="row" v-if="userFiles != null">
+
+                    <div class="col-sm-6 col-md-4" v-for="userFile in userFiles">
+                        <div class="thumbnail">
+                            <img v-bind:src="userFile.file"  style="width: 50px; height: 40px "/>
+                            <div class="caption">
+                                <h4>{{userFile.fileType.title}}</h4>
+                                <p>得分：{{userFile.score==null?"暂无":userFile.score}} &nbsp;&nbsp;
+                                    状态：{{userFile.state=='STATE_APPLY'?"申请状态":(userFile.state=='STATE_PASS'?"审核通过":"审核拒绝")}}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <a href="javascript:;" id="btn_uploadUserFiles"></a>
+                </div>
+            </div>
+
+            <!-- 功能页面2    供用户对已经上传但未归类好的材料信息进行归类   （filetype is null） -->
+            <div v-if="showSetTypeFlag==true" class="col-sm-9">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        用户认证文件信息归类
+                    </div>
+                </div>
+                <div class="row" v-if="userFiles != null">
+
+                    <div class="col-sm-6 col-md-4" v-for="userFile in userFiles">
+                        <div class="thumbnail">
+                            <img v-bind:src="userFile.file"  style="width: 50px; height: 40px "/>
+                            <div class="caption">
+                                <select class="form-control" v-model="fileTypeMap[''+userFile.id]" style="width: 180px" autocomplate="off">
+                                    <option v-for="item in fileTypeItems"  :value="item.id">{{item.title}}</option>
+                                </select>
+                                <p>得分：{{userFile.score==null?"暂无":userFile.score}} &nbsp;&nbsp;
+                                    状态：{{userFile.state=='STATE_APPLY'?"申请状态":(userFile.state=='STATE_PASS'?"审核通过":"审核拒绝")}}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <button type="button" class="btn btn-warning" @click="submitFileType()">提交分类信息</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
+
+<script src="https://cdn.bootcss.com/qs/6.5.1/qs.min.js"></script>
+<script>
+    axios.defaults.baseURL = "http://localhost:20000";
+    axios.defaults.withCredentials = true;
+    //加载数据
+    var vue = new Vue({
+        el:"#app",
+        data:{
+            fileTypeItems:[],//风控材料的明细
+            showSetTypeFlag: false,//展示功能页面的标志位（true:提交材料类别的页面，false：上传风控材料的页面）
+            userFiles:[],//风控材料的列表，若showSetTypeFlag=true, 则表示待归类的材料列表，否则表示已经设置过类别信息的材料列表
+            loginInfo:{},//登录用户
+            userInfo:{},//用户信息
+            fileTypeMap:{}//文件map集合的类型
+        },
+        methods:{
+            //提交风控材料类别
+            submitFileType:function () {
+                alert(JSON.stringify(vue.fileTypeMap));//从map集合对象中解析出字符串
+                //map的遍历
+                for(var prop in vue.fileTypeMap){
+                    //alert(prop+"--->"+vue.fileTypeMap[prop]);
+                    if(vue.fileTypeMap[prop] == ""){//判断类型已选择
+                        alert("请核对所有材料的类别已选择!");
+                        return;
+                    }
+                }
+
+                axios.post(//ajax。post方式提交
+                    "/userservice/userFile/batch_set_type",//url路径
+                    JSON.stringify(vue.fileTypeMap),//map对象转为字符串
+                    {
+                        headers: {
+                            'Content-Type': 'application/json '//向后台发送的数据格式为json字符串类型
+                        }
+                    }
+                ).then(function(respResult){
+                    var resultVo = respResult.data;
+                    if(resultVo.code == 0){//判断状态码
+                        alert("提交成功！");
+                        location.reload();//刷新当前页面
+                    }else {
+                        alert(resultVo.msg);
+                    }
+                });
+            },
+            //sn表示数据字典分组表的编号， 该方法用于加载风控材料明细
+            loadSysItemsBySn:function(sn){
+                axios.get(//ajax get请求方式
+                    "/userservice/sys/list",//发送的url路径
+                    {
+                        params: {sn:sn}
+                    }
+                ).then(function (resp) {
+                    if(resp.data.code == 0){//判断数据的属性
+                        vue.fileTypeItems = resp.data.data;
+                    }
+                });
+            },
+
+            initData : function(){
+                axios({//ajax
+                    url:"/userservice/user/getLoginInfo",//请求的url路径
+                    method:"GET"//get方式提交
+                }).then(function (resp) {
+                    var resultVo = resp.data;//resultVO{code,msg,data}
+                    if(resultVo.code == 0){//判断状态码
+                        vue.loginInfo = resultVo.data;
+                        console.log(vue.loginInfo);
+                        axios({
+                            url:"/userservice/user/getUserInfo/"+vue.loginInfo.id,//根据登录id拼接url路径
+                            method:"GET"//get请求方式
+                        }).then(function (result) {
+                            vue.userInfo = result.data.data;//数据的属性
+                            console.log(vue.userInfo);
+
+                        });
+
+                        //加载风控材料列表   当前用户的，并且filetype is not null
+                        axios({//ajax
+                            url:"/userservice/userFile/upload_list",//请求的url路径
+                            params:{applierId:vue.loginInfo.id, typeFlag:true},//发送请求的参数
+                            method:"GET"//请求方式get
+                        }).then(function (result) {
+                            //先判断用户是否存在 已经上传但是未进行归类的材料
+                            // 若存在，则跳转到 归类的页面
+                            // 若不存在，即该用户所有的材料的filetype_id都不为空，那么就展示当前页面
+                            var userFilesTypeNull = result.data.data;
+                            if(userFilesTypeNull == null || userFilesTypeNull.length==0){
+                                vue.showSetTypeFlag = false;
+                                //显示上传材料的页面
+                                axios({
+                                    url:"/userservice/userFile/upload_list",
+                                    params:{applierId:vue.loginInfo.id, typeFlag:false},//发送请求的参数
+                                    method:"GET"
+                                }).then(function(respResult){
+                                    vue.userFiles = respResult.data.data;//数据的属性值
+                                });
+                            }else{
+                                //显示归类页面
+                                vue.showSetTypeFlag = true;
+                                vue.loadSysItemsBySn("userFileType");
+                                for(var i=0; i< result.data.data.length; i++){//遍历数据的属性
+                                    var userFile = result.data.data[i];
+                                    vue.fileTypeMap[""+userFile.id] = "";
+                                }
+                                vue.userFiles = result.data.data;
+                                console.log(vue.userFiles);
+                            }
+                        });
+                    }else{
+                        alert(resultVo.msg);
+                        location.href= "/login.html";
+                    }
+                });
+            }
+        },
+        created:function () {
+            this.initData();
+        }
+    });
+
+</script>

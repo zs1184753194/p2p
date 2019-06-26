@@ -1,0 +1,228 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>蓝源Eloan-P2P平台->我要投资</title>
+
+	<link rel="stylesheet" href="/js/bootstrap-3.3.2-dist/css/bootstrap.css" type="text/css" />
+	<link rel="stylesheet" href="/css/core.css" type="text/css" />
+	<script type="text/javascript" src="/js/jquery/jquery-2.1.3.js"></script>
+	<script type="text/javascript" src="/js/bootstrap-3.3.2-dist/js/bootstrap.js"></script>
+	<script type="text/javascript" src="/js/jquery.bootstrap.min.js"></script>
+	<script type="text/javascript" src="/js/plugins/jquery-validation/jquery.validate.js"></script>
+	<script type="text/javascript" src="/js/plugins/jquery-validation/localization/messages_zh.js"></script>
+	<script type="text/javascript" src="/js/plugins/jquery.form.js"></script>
+	<script type="text/javascript" src="/js/jquery.bootstrap.min.js"></script>
+	<script type="text/javascript" src="/js/vue.min.js"></script>
+	<script type="text/javascript" src="/js/axios.min.js"></script>
+
+
+	<style type="text/css">
+		body {
+			font: 14px/1.5 "Verdana", "微软雅黑", YaHei, tahoma, arial, Hiragino Sans GB, "宋体";
+		}
+		.el-borrow-form{
+			position: relative;
+		}
+		.el-borrow-form-tip{
+			width: 300px;
+			border-radius: 3px;
+			border:1px solid #ddd;
+			box-shadow: 1px 1px 20px #ddd;
+			padding:20px 30px;
+			position: absolute;
+			top:10px;
+			right: 100px;
+		}
+		.text-danger{text-align: center;}
+	</style>
+
+</head>
+<body>
+
+<div id="app" >
+
+	<div class="el-header">
+		<div class="container" style="position: relative;">
+			<ul class="nav navbar-nav navbar-right">
+				<li><a href="/personal.html">首页</a></li>
+
+				<li><a class="el-current-user" href="/personal.do">
+					{{loginInfo.username}}
+				</a>
+				</li>
+				<li><a href="/recharge.do"> 账户充值 </a></li>
+				<li><a id="logout" href="javascript:void(0);"> 注销 </a></li>
+				<li><a href="#">帮助</a></li>
+			</ul>
+		</div>
+	</div>
+
+	<div class="navbar navbar-default el-navbar">
+		<div class="container">
+			<div class="navbar-header">
+				<a href="/">
+					<img alt="Brand" src="/images/logo.png">
+				</a>
+			</div>
+			<ul class="nav navbar-nav">
+				<li id="index"><a href="/personal.html">首页</a></li>
+				<li id="invest"><a href="/invest_list.do">我要投资</a></li>
+				<li id="borrow"><a href="/borrow.html">我要借款</a></li>
+				<li id="account"><a href="/personal.html">个人中心</a></li>
+				<li><a href="#">新手指引</a></li>
+				<li><a href="#">关于我们</a></li>
+			</ul>
+		</div>
+	</div>
+
+	<!-- 网页内容 -->
+	<div class="container" style="min-height: 500px;">
+		<h4 class="page-title">投资列表</h4>
+		<form action="/invest_list.do" id="searchForm" method="POST">
+			<input type="hidden" name="currentPage" id="currentPage" value="1">
+			<input type="hidden" name="bidRequestState" id="bidRequestStateInput" value="-1">
+		</form>
+		<div style="margin: 20px 0px;">
+			<span class="text-muted">标的状态</span><div style="margin-left: 30px" class="btn-group" data-toggle="buttons">
+			<label class="btn btn-default active" @click="changeState(-2)">
+				<input type="radio" name="bidRequestStateRadio" value="-2" autocomplete="off" checked />&emsp;全部&emsp;
+			</label>
+			<label class="btn btn-default" @click="changeState(1)">
+				<input type="radio" name="bidRequestStateRadio" value="1" autocomplete="off" />&emsp;招标中&emsp;
+			</label>
+			<label class="btn btn-default" @click="changeState(8)">
+				<input type="radio" name="bidRequestStateRadio" value="8" autocomplete="off" />&emsp;已完成&emsp;
+			</label>
+		</div>
+		</div>
+
+		<table class="table el-table table-hover">
+			<thead id="gridHead">
+			<tr>
+				<th>借款人</th>
+				<th width="180px">借款标题</th>
+				<th>年利率</th>
+				<th>金额</th>
+				<th>还款方式</th>
+				<th>进度</th>
+				<th width="80px">操作</th>
+			</tr>
+			</thead>
+			<tbody id="gridBody" v-if="bidRequestPageReult.totalPage!=null">
+				<tr v-for="bidRequest in bidRequestPageReult.result">
+					<th v-text="bidRequest.createUser.username"></th>
+					<th width="180px"><a :href="'http://localhost:8000/bid_request_detail.html?id='+bidRequest.id+''" v-text="bidRequest.title"></a></th>
+					<th v-text="bidRequest.currentRate"></th>
+					<th v-text="bidRequest.bidRequestAmount"></th>
+					<th v-text="bidRequest.returnTypeDisplay"></th>
+					<th v-text="bidRequest.persent"></th>
+					<th width="80px">
+						<a :href="'http://localhost:8000/bid_request_detail.html?id='+bidRequest.id">查看详情</a>
+					</th>
+				</tr>
+			</tbody>
+			<tbody v-if="bidRequestPageReult.totalPage==null">
+				<tr>
+					<td colspan="7" align="center">
+						<p class="text-danger">目前没有需要投资的借款标</p>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<nav>
+			<ul class="pagination">
+				<li :class="{disabled:bidRequestPageReult.currentPage==1}" >
+					<a href="#" aria-label="Previous" @click="showPage(bidRequestPageReult.currentPage-1)">
+						<span aria-hidden="true">&laquo;</span>
+					</a>
+				</li>
+				<li v-for="index of bidRequestPageReult.totalPage"
+					:class="{active: index == bidRequestPageReult.currentPage}">
+					<!--href=”javascript:void(0);”这个的含义是，让超链接去执行一个js函数，而不是去跳转到一个地址，
+						而void(0)表示一个空的方法，也就是不执行js函数。-->
+					<a href="javascript:void(0)" @click="showPage(index)">{{index}}</a>
+				</li>
+				<li :class="{disabled:bidRequestPageReult.currentPage==bidRequestPageReult.totalPage}" >
+					<a href="#" aria-label="Next" @click="showPage(bidRequestPageReult.currentPage+1)">
+						<span aria-hidden="true">&raquo;</span>
+					</a>
+				</li>
+			</ul>
+		</nav>
+	</div>
+
+</div>
+</body>
+</html>
+<script src="https://cdn.bootcss.com/qs/6.5.1/qs.min.js"></script>
+<script>
+    axios.defaults.withCredentials = true;
+    axios.defaults.baseURL = "http://localhost:20000";
+
+    //加载数据
+    var vue = new Vue({
+        el:"#app",
+        data:{
+            loginInfo:{},
+            userInfo :{},
+			bidRequestPageReult:{},
+            baseAuditQueryObject:{state:-2,currentPage:1,pageSize:3}
+        },
+        methods:{
+            changeState:function (targetState) {
+                vue.baseAuditQueryObject.state=targetState;
+                this.showPage(1);
+            },
+			showPage:function (index) {
+				vue.baseAuditQueryObject.currentPage=index;
+//				加载可以招标的列表
+                axios.post(
+                    "/bidservice/bid_request/audit_list",
+                    JSON.stringify(vue.baseAuditQueryObject),
+                    {
+                        headers:{
+                            "Content-Type":"application/json"
+                        }
+                    }
+                ).then(function (result) {
+                    vue.bidRequestPageReult = result.data;
+                    console.log(result.data);
+                });
+            },
+            initData : function(){
+//                加载登录的信息
+                axios({
+                    url:"/userservice/user/getLogInfo",
+                    method:"POST"
+                }).then(function (resp) {
+                    var resultVo = resp.data;
+                    console.log(resultVo);
+                    if(resultVo.code == 0){
+//                        加载用户的信息
+                        vue.loginInfo = resultVo.data;
+                        console.log(vue.loginInfo);
+                        axios({
+                            url:"/userservice/user/getUserInfo/"+vue.loginInfo.id,
+                            method:"GET"
+                        }).then(function (result) {
+                            vue.userInfo = result.data.data;
+                            console.log(vue.userInfo);
+                        });
+//                        第一次进入这个页面默认展示第一页
+						vue.showPage(1);
+                    }else{
+                        alert(resultVo.msg);
+                        location.href = "/login.html";
+                    }
+
+                });
+            }
+
+        },
+        created:function () {
+            this.initData();
+        }
+    });
+
+</script>

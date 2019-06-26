@@ -1,0 +1,186 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>蓝源Eloan-P2P平台->我要借款</title>
+    <link rel="stylesheet" href="/js/bootstrap-3.3.2-dist/css/bootstrap.css" type="text/css" />
+    <link rel="stylesheet" href="/css/core.css" type="text/css" />
+    <script type="text/javascript" src="/js/jquery/jquery-2.1.3.js"></script>
+    <script type="text/javascript" src="/js/bootstrap-3.3.2-dist/js/bootstrap.js"></script>
+    <script type="text/javascript" src="/js/jquery.bootstrap.min.js"></script>
+    <script type="text/javascript" src="/js/plugins/jquery-validation/jquery.validate.js"></script>
+    <script type="text/javascript" src="/js/plugins/jquery-validation/localization/messages_zh.js"></script>
+    <script type="text/javascript" src="/js/plugins/jquery.form.js"></script>
+    <script type="text/javascript" src="/js/jquery.bootstrap.min.js"></script>
+    <script type="text/javascript" src="/js/vue.js"></script>
+    <script type="text/javascript" src="/js/vue.js"></script>
+    <script type="text/javascript" src="https://cdn.bootcss.com/axios/0.19.0-beta.1/axios.min.js"></script>
+</head>
+<body>
+
+<!-- 网页头信息 -->
+<div id="app">
+    <div class="el-header">
+        <div class="container" style="position: relative;">
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="/index.html">首页</a></li>
+                <li><a href="/login.html">登录</a></li>
+                <li><a href="/register.html">快速注册</a></li>
+                <li><a class="el-current-user" href="/personal.html">
+                    {{loginInfo.username}}</a></li>
+                <li><a href="/recharge.html"> 账户充值 </a></li>
+                <li><a id="logout" href="javascript:void(0);"> 注销 </a></li>
+                <li><a href="#">帮助</a></li>
+            </ul>
+        </div>
+    </div>
+<!-- 网页导航 -->
+<!-- 网页内容 -->
+<div class="container el-borrow">
+    <div class="row">
+        <div class="el-borrow-item col-sm-4">
+            <div class="el-borrow-item-title" style="background-color: #40d47e;">
+                信用贷</div>
+            <div class="el-borrow-item-content">
+                <p>
+                    认证后可借金额 <i>¥ {{account.remainBorrowLimit}}</i>
+                </p>
+                <a href="#" class="text-primary">申请条件</a>
+                <p class="help-block">仅限上海地区</p>
+                <ul>
+                    <li v-if="!userInfo.baseInfo">
+                        <a href="/userInfo.html">填写基本资料</a>
+                        <span class="glyphicon glyphicon-remove" style="color:red;"></span>
+                    </li>
+                    <li v-if="userInfo.baseInfo">
+                        填写基本资料<span class="glyphicon glyphicon-ok" style="color:green;"></span>
+                    </li>
+                    <li>
+                    <li v-if="!userInfo.realAuth">
+                        <a href="/realAuth.html">身份认证</a>
+                        <span class="glyphicon glyphicon-remove" style="color:red;"></span>
+                    </li>
+                    <li v-if="userInfo.realAuth">
+                        身份认证<span class="glyphicon glyphicon-ok" style="color:green;"></span>
+                    </li>
+                    <li v-if="userInfo.authScore<creditBorrowScore">
+                        <a href="/userFile.html">材料认证分数达到{{creditBorrowScore}}分</a>
+                        <span class="glyphicon glyphicon-remove" style="color:red;"></span>
+                    </li>
+                    <li v-if="userInfo.authScore>=creditBorrowScore">
+                        材料认证分数达到30分<span class="glyphicon glyphicon-ok" style="color:green;"></span>
+                    <li v-if="!userInfo.vedioAuth">
+                        <a href="/created.html">视频认证</a>
+                        <span class="glyphicon glyphicon-remove" style="color:red;"></span>
+                    </li>
+                    <li v-if="userInfo.vedioAuth">
+                        视频认证<span class="glyphicon glyphicon-ok" style="color:green;"></span>
+                    </li>
+                </ul>
+                <a v-if="!(userInfo.baseInfo && userInfo.realAuth && (userInfo.authScore >= creditBorrowScore) && userInfo.vedioAuth)"
+                   href="/borrow_apply.html" class="el-borrow-apply">
+                    申请贷款
+                </a>
+                <a v-if="(userInfo.baseInfo && userInfo.realAuth && (userInfo.authScore >= creditBorrowScore) && userInfo.vedioAuth)"
+                   href="#" class="el-borrow-apply">
+                </a>
+            </div>
+        </div>
+        <div class="el-borrow-item col-sm-4">
+            <div class="el-borrow-item-title">车易贷</div>
+            <div class="el-borrow-item-content">
+                <p>
+                    认证后可借金额 <i>¥ 10,000.00</i>
+                </p>
+                <a href="#" class="text-primary">申请条件</a>
+                <p class="help-block">仅限上海地区</p>
+                <ul>
+                    <li>填写基本资料</li>
+                    <li>身份认证</li>
+                    <li>材料认证分数达到30分</li>
+                    <li>提交车辆抵押相关资料</li>
+                    <li>视频认证</li>
+                </ul>
+                <a href="#" class="el-borrow-apply">
+                    申请贷款
+                </a>
+            </div>
+        </div>
+        <div class="el-borrow-item col-sm-4">
+            <div class="el-borrow-item-title" style="background-color: #2ca2ee;">
+                房易贷</div>
+            <div class="el-borrow-item-content">
+                <p>
+                    可借金额 <i>¥ 10,0000.00</i>
+                </p>
+                <a href="#" class="text-primary">申请条件</a>
+                <p class="help-block">仅限上海地区</p>
+                <ul>
+                    <li>填写基本资料</li>
+                    <li>身份认证</li>
+                    <li>材料认证分数达到50分</li>
+                    <li>提交房屋抵押相关资料</li>
+                    <li>视频认证</li>
+                </ul>
+                <a href="#" class="el-borrow-apply">
+                    申请贷款
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</body>
+<script>
+    axios.defaults.withCredentials = true;
+    axios.defaults.baseURL = "http://localhost:20000";
+    Vue.prototype.$http = axios;
+    //加载数据
+    var vue = new Vue({
+        el:"#app",
+        data:{
+            creditBorrowScore:30,//设置最大认证分数
+            loginInfo:{},
+            account:{usableAmount:2000},
+            userInfo:{authScore:30}
+        },
+        methods:{
+            initData:function () {
+                var _this = this;
+                this.$http({
+                    url:"/userservice/user/getLoginInfo",
+                    method:"GET"
+                }).then(function (resp) {
+                    var resultVo = resp.data;//resultVo  {code，msg，data}
+                    if (resultVo.code == 0){//判断状态码
+                        _this.loginInfo = resultVo.data;
+                        console.log(_this.loginInfo);
+                        //ajax
+                        axios({
+                            url:"/userservice/user/getUserInfo/"+_this.loginInfo.id,
+                            method:"GET"
+                        }).then(function (result) {
+                            _this.userInfo = result.data.data;
+                            console.log(_this.userInfo);
+                        });
+                        axios({
+                            url:"/accountservice/account/"+_this.loginInfo.id,
+                            method:"GET"
+                        }).then(function (r) {
+                            _this.account = r.data.data;
+                            console.log(_this.loginInfo);
+                        });
+                    }else {
+                        alert(resultVo.msg);
+                        location.href = "/login.html";
+                    }
+                });
+            }
+        },
+        mounted:function () {
+            var _this = this;
+            _this.initData()//调用
+        }
+    });
+</script>
+</html>

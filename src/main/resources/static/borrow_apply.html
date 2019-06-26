@@ -1,0 +1,323 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>蓝源Eloan-P2P平台->我要借款</title>
+	<link rel="stylesheet" href="/js/bootstrap-3.3.2-dist/css/bootstrap.css" type="text/css" />
+	<link rel="stylesheet" href="/css/core.css" type="text/css" />
+	<script type="text/javascript" src="/js/jquery/jquery-2.1.3.js"></script>
+	<script type="text/javascript" src="/js/bootstrap-3.3.2-dist/js/bootstrap.js"></script>
+	<script type="text/javascript" src="/js/jquery.bootstrap.min.js"></script>
+	<link rel="stylesheet" href="js/plugins/flipcountdown/jquery.flipcountdown.css">
+	<script src="js/plugins/flipcountdown/jquery.flipcountdown.js"></script>
+	<script type="text/javascript" src="/js/vue.min.js"></script>
+	<script src="/js/axios.min.js"></script>
+	<style type="text/css">
+		body {
+			font: 14px/1.5 "Verdana", "微软雅黑", YaHei, tahoma, arial, Hiragino Sans GB, "宋体";
+		}
+		.el-borrow-form{
+			position: relative;
+		}
+		.el-borrow-form-tip{
+			width: 300px;
+			border-radius: 3px;
+			border:1px solid #ddd;
+			box-shadow: 1px 1px 20px #ddd;
+			padding:20px 30px;
+			position: absolute;
+			top:10px;
+			right: 100px;
+		}
+		.text-danger{text-align: center;}
+	</style>
+</head>
+<body>
+<div id="app">
+
+	<!-- 网页头信息 -->
+	<div class="el-header">
+		<div class="container" style="position: relative;">
+			<ul class="nav navbar-nav navbar-right">
+				<li><a href="/personal.do">首页</a></li>
+				<li><a href="/login.html">登录</a></li>
+				<li><a href="/register.html">快速注册</a></li>
+				<li><a class="el-current-user" href="/personal.html">
+					{{loginInfo.username}} </a></li>
+				<li><a href="/recharge.do"> 账户充值 </a></li>
+				<li><a id="logout" href="javascript:void(0);"> 注销 </a></li>
+				<li><a href="#">帮助</a></li>
+			</ul>
+		</div>
+	</div>
+
+	<!-- 网页导航 -->
+	<div class="navbar navbar-default el-navbar">
+		<div class="container">
+			<div class="navbar-header">
+				<a href="/">
+					<img alt="Brand" src="/images/logo.png">
+				</a>
+			</div>
+			<ul class="nav navbar-nav">
+				<li id="index"><a href="/index.html">首页</a></li>
+				<li id="invest"><a href="/invest_list.html">我要投资</a></li>
+				<li id="borrow"><a href="/borrow.html">我要借款</a></li>
+				<li id="account"><a href="/personal.html">个人中心</a></li>
+				<li><a href="#">新手指引</a></li>
+				<li><a href="#">关于我们</a></li>
+			</ul>
+		</div>
+	</div>
+
+	<!-- 网页内容 -->
+	<div class="container">
+
+		<div class="el-tip-info">
+			<h3>信用借款</h3>
+			<p>
+				<span class="text-info">可借金额：</span><span class="text-danger">{{account.remainBorrowLimit}}</span>
+			</p>
+		</div>
+
+		<div class="page-header lead">
+			借款信息
+			<label class="label label-primary">信用标</label>
+		</div>
+		<form class="form-horizontal el-borrow-form" id="editForm" novalidate="novalidate" method="post" action="/borrow_apply.do">
+			<div class="form-group">
+				<label class="col-sm-3 control-label">
+					借款金额
+				</label>
+				<div class="col-sm-3  input-group">
+					<input class="form-control" v-model="bidRequest.bidRequestAmount" id="bidRequestAmount"/>
+					<span class="input-group-addon">元</span>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-3 control-label">
+					借款利息
+				</label>
+				<div class="col-sm-3  input-group">
+					<input class="form-control" v-model="bidRequest.currentRate" />
+					<span class="input-group-addon">%</span>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-3 control-label">
+					借款期限
+				</label>
+				<div class="col-sm-3 input-group">
+					<select class="form-control" v-model="bidRequest.monthes2Return">
+						<option value="1">1</option>
+						<option value="3">3</option>
+						<option value="6">6</option>
+						<option value="9">9</option>
+						<option value="12">12</option>
+					</select>
+					<span class="input-group-addon">月</span>
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label class="col-sm-3 control-label">
+					还款方式
+				</label>
+				<label class="radio-inline">
+					<input type="radio" value="0" checked="checked" v-model="bidRequest.returnType" />
+					等额本息
+				</label>
+				<label class="radio-inline">
+					<input type="radio" value="1" v-model="bidRequest.returnType" />
+					按月到期
+				</label>
+				<label class="radio-inline">
+					<input type="radio" value="2" v-model="bidRequest.returnType" />
+					等额本金
+				</label>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-3 control-label">
+					最小投标
+				</label>
+				<div class="col-sm-3  input-group">
+					<input class="form-control" v-model="bidRequest.minBidAmount" />
+					<span class="input-group-addon">元</span>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-3 control-label">
+					招标天数
+				</label>
+				<div class="col-sm-3 input-group">
+					<select class="form-control" v-model="bidRequest.disableDays">
+						<option value="1">1</option>
+						<option value="2">2</option>
+						<option value="3">3</option>
+						<option value="4">4</option>
+						<option value="5">5</option>
+					</select>
+					<span class="input-group-addon">天</span>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-3 control-label">
+					借款标题
+				</label>
+				<div class="col-sm-6 input-group">
+					<input v-model="bidRequest.title" class="form-control" />
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-3 control-label">
+					借款描述
+				</label>
+				<div class="col-sm-6  input-group">
+					<textarea v-model="bidRequest.description" rows="4" class="form-control" style="resize: none;"></textarea>
+				</div>
+			</div>
+			<div class="form-group">
+				<button @click="submitBidRequest" class="btn btn-primary col-lg-offset-3" type="button" data-loading-text="提交">
+					提交申请
+				</button>
+			</div>
+
+			<div class="el-borrow-form-tip">
+				<h4>相关费用</h4>
+				<p>
+					<span class="text-info">利息</span>
+					<span class="el-borrow-cost" id="cost01">--</span>
+				</p>
+				<p>
+					<span class="text-info">奖金</span>
+					<span class="el-borrow-cost" id="cost02">--</span>
+				</p>
+				<p>
+					<span class="text-info">管理费</span>
+					<span class="el-borrow-cost" id="cost03">--</span>
+				</p>
+			</div>
+		</form>
+	</div>
+
+</div>
+
+	<!-- 网页版权 -->
+	<div class="container-foot-2">
+	<div class="context">
+		<div class="left">
+			<p>版权所有：&emsp;2018xxx科技有限公司</p>
+			<p>地&emsp;&emsp;址：&emsp;上海市奉贤区xxx街道xx号</p>
+			<p>电&emsp;&emsp;话： 021-xxxxxx&emsp;&emsp;
+				邮箱：&emsp;xxx@163.com</p>
+			<p>
+				<a href="http://www.baidu.com" style="color: #ffffff">ICP备案
+					：沪ICP备字521</a>
+			</p>
+		</div>
+		<div class="right">
+			<a target="_blank" href="https://www.infoq.cn/"><img
+					src="/images/sina.png"></a>
+		</div>
+		<div class="clearfix"></div>
+	</div>
+</div>
+
+</body>
+
+<script type="text/javascript">
+    axios.defaults.withCredentials = true;
+    axios.defaults.baseURL = "http://localhost:20000";
+
+    //加载数据
+    var vue = new Vue({
+        el:"#app",
+        data:{
+            loginInfo:{},
+            account:{},
+			userInfo:{},
+			bidRequest:{},
+
+        },
+        mounted:function () {
+            this.initData();
+        },
+        methods:{
+            //提交表单
+            submitBidRequest:function () {
+                vue.bidRequest.createUser = vue.loginInfo;//设置申请人
+				var formData = JSON.stringify(vue.bidRequest);
+
+                axios.post(
+                    "/bidservice/bid_request/save_apply",
+                    formData,
+					{
+					    headers:{
+					        "Content-Type":"application/json"
+						}
+					}
+                ).then(function (result) {
+                    var resultVO = result.data;
+					if (resultVO.code == 0){
+                        alert("添加成功");
+					    location.reload();  //刷新页面
+					}else {
+					    alert(resultVO.msg);
+					}
+
+                });
+
+
+            },
+            
+            initData : function(){
+  				//---------获取用户登录信息logininfo表的信息
+                axios({
+                    url:"/userservice/user/getLogInfo",
+                    method:"POST"
+                }).then(function (resp) {
+                    var resultVo = resp.data;//resultVO{code,msg,data}
+
+                    if(resultVo.code == 0){
+                        vue.loginInfo = resultVo.data;
+                        console.log(vue.loginInfo);
+                        //-------获取账户account表的信息
+                        axios({
+                            url:"/accountservice/account/selectById/"+vue.loginInfo.id,
+                            method:"GET"
+                        }).then(function (result) {
+                            vue.account = result.data.data;
+                            console.log(vue.account);
+                        });
+
+                        //----校验用户是否有借款条件
+                        axios({
+                            url:"/bidservice/bid_request/checkBorrowFlag?userId="+vue.loginInfo.id,
+                            method:"POST"
+                        }).then(function (result) {
+                            console.log(result.data);
+                            if (result.data.code != 0){
+                                alert(result.data.msg);
+                                location.href="/borrow.html";
+                            }
+
+                        });
+
+
+
+                    }else{
+                        alert(resultVo.msg);
+                        location.href= "/login.html";
+                    }
+
+                });
+
+            }
+
+        },
+
+
+    });
+
+</script>
+</html>
